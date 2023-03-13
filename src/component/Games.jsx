@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react'
-
+import './style/style.css';
 function Games() {
-    const [data,setData] = useState([]);
-    const [total,setTotal]=useState();
-    const [items,setItem]=useState([]);
+    const [data, setData] = useState([]);
+    const [title, setTitle] = useState([]);
+    const [total, setTotal] = useState();
+    const [items, setItem] = useState([]);
     const [platformSet, setPlatform] = useState([]);
     const [tmp, setTmp] = useState(true);
     let platform = [];
     useEffect(() => {
         if (tmp) {
+
             fetchAllGames();
         }
     }, []);
@@ -40,19 +42,29 @@ function Games() {
         setTotal(array.length);
         return array;
     }
-    const searchHandler=(search)=>{
+    const searchHandler = (search) => {
         setTmp(false);
-        setData(getSearchData(search));
-    }
-    const getSearchData=(search)=>{
-        let regEx=new RegExp(`${search}`,'gi');
-        let array=items.filter((item)=>{
+        let title = [];
+        let regEx = new RegExp(`${search}`, 'gi');
+        items.forEach((item) => {
             if(item.title){
-                return item.title.match(regEx) || item.platform.match(regEx) || item.genre.match(regEx);
+                if (item.title.match(regEx)) {
+                    title.push(item.title);
+                }
+            }
+        });
+        setTitle(Array.from(new Set(title)));
+    }
+    const getSearchData = (search) => {
+        let regEx = new RegExp(`${search}`, 'gi');
+        let array = items.filter((item) => {
+            if (item.title) {
+                return item.title.match(regEx);
             }
         });
         setTotal(array.length);
-        return array;
+        setTitle([]);
+        setData(array);
     }
     let renderList = data.map((game, index) => {
         if (game.title) {
@@ -85,8 +97,16 @@ function Games() {
                                 }
                             </select>
                         </div>
-                        <div className="col-6">
-                            <input type="text" onChange={(e)=>searchHandler(e.target.value)} className='form-control' placeholder='Search Games' />
+                        <div className="col-6 position-relative">
+                            <input type="text" onChange={(e) => searchHandler(e.target.value)} className='form-control' placeholder='Search Games' />
+                            <ul className='ps-0 ms-0 auto-complete'>
+                                {
+                                    title.length != 0 ?
+                                        title.map((v,index) => <li key={index} className='py-2'><button onClick={()=>getSearchData(v)} className='btn btn-light w-100'>{v}</button></li>)
+                                        :
+                                        <></>
+                                }
+                            </ul>
                         </div>
                     </div>
                 </div>
@@ -108,3 +128,14 @@ function Games() {
 }
 
 export default Games;
+
+/*
+ let title=[];
+        let regEx=new RegExp(`${search}`,'gi');
+        items.forEach((item)=>{
+            if(item.title.match(regEx)){
+                title.push(item.title);
+            }
+        });
+        return Array.from(new Set(title));
+        */
